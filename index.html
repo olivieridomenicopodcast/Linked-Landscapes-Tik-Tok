@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Linked Landscapes — Logbook</title>
+<meta name="theme-color" content="#121815">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12181a;
+  --surface:#1a2320;
+  --surface-2:#212b27;
+  --line:#2c3733;
+  --ink:#ece7dc;
+  --ink-dim:#9aa69f;
+  --sage:#82a67e;
+  --sage-dim:#5d7a5a;
+  --amber:#e8873c;
+  --amber-dim:#c76f2b;
+  --red:#d9695a;
+  --radius:14px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Manrope',sans-serif;
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle at 15% 8%, rgba(232,135,60,0.10), transparent 40%),
+    repeating-linear-gradient(180deg, transparent 0 46px, rgba(130,166,126,0.05) 46px 47px);
+  pointer-events:none;
+  z-index:0;
+}
+.app{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 0 92px;min-height:100vh;}
+
+/* header */
+header.top{
+  padding:22px 18px 14px;
+  position:relative;
+  overflow:hidden;
+}
+.contours{
+  position:absolute;inset:0;z-index:0;opacity:0.55;
+}
+.header-inner{position:relative;z-index:1;}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--sage);margin:0 0 4px;
+}
+h1{
+  font-family:'Fraunces',serif;
+  font-optical-sizing:auto;
+  font-weight:600;
+  font-size:30px;
+  margin:0 0 2px;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+}
+.sub{color:var(--ink-dim);font-size:13.5px;margin:0;}
+
+/* tabs */
+.tabs{
+  display:flex;gap:6px;padding:6px 18px 14px;position:relative;z-index:1;
+}
+.tab-btn{
+  flex:1;
+  background:var(--surface);
+  border:1px solid var(--line);
+  color:var(--ink-dim);
+  font-family:'Manrope',sans-serif;
+  font-weight:700;
+  font-size:12px;
+  padding:10px 6px;
+  border-radius:11px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:background .15s, color .15s, border-color .15s;
+  white-space:nowrap;
+}
+.tab-btn.active{
+  background:linear-gradient(180deg, var(--sage) 0%, var(--sage-dim) 100%);
+  color:#0f1512;
+  border-color:transparent;
+}
+.tab-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  background:rgba(0,0,0,0.18);
+  padding:1px 6px;border-radius:20px;
+}
+.tab-btn.active .tab-count{background:rgba(0,0,0,0.22);}
+
+main{padding:0 18px;position:relative;z-index:1;}
+.panel{display:none;}
+.panel.active{display:block;animation:fade .18s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;}}
+
+/* snapshot strip */
+.snapshot{
+  display:flex;gap:8px;margin-bottom:16px;
+}
+.snap-card{
+  flex:1;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;padding:11px 12px;
+}
+.snap-num{font-family:'Fraunces',serif;font-weight:600;font-size:22px;color:var(--amber);line-height:1;}
+.snap-label{font-size:11px;color:var(--ink-dim);margin-top:4px;}
+
+/* search */
+.search-wrap{position:relative;margin-bottom:14px;}
+.search-wrap input{
+  width:100%;
+  background:var(--surface);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:11px 14px 11px 38px;
+  border-radius:11px;
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  outline:none;
+}
+.search-wrap input:focus{border-color:var(--sage-dim);}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.55;}
+mark{background:rgba(232,135,60,0.35);color:inherit;border-radius:3px;padding:0 1px;}
+
+/* form card */
+.form-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  margin-bottom:16px;
+}
+.form-card .label{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--sage);
+  margin:0 0 5px;display:block;
+}
+.form-row{display:flex;gap:8px;margin-bottom:10px;}
+.form-row:last-child{margin-bottom:0;}
+.form-col{flex:1;}
+input[type=text], input[type=date], textarea, select{
+  width:100%;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:10px 11px;
+  border-radius:9px;
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  outline:none;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--sage-dim);}
+textarea{resize:vertical;min-height:38px;}
+.btn{
+  border:none;border-radius:9px;font-family:'Manrope',sans-serif;font-weight:700;
+  font-size:13.5px;padding:10px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  transition:filter .12s, transform .05s;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--amber);color:#20140a;}
+.btn-primary:hover{filter:brightness(1.08);}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink-dim);}
+.btn-ghost:hover{color:var(--ink);border-color:var(--sage-dim);}
+.btn-block{width:100%;justify-content:center;}
+.btn-sm{padding:6px 10px;font-size:12px;border-radius:7px;}
+.btn-danger-ghost{background:transparent;border:1px solid rgba(217,105,90,0.4);color:var(--red);}
+
+/* list group by date */
+.date-group{margin-bottom:18px;}
+.date-group h3{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--ink-dim);
+  letter-spacing:.06em;
+  margin:0 0 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.date-group h3::after{content:"";flex:1;height:1px;background:var(--line);}
+
+.rec-item, .q-item{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 13px;
+  margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.rec-item .body, .q-item .body{flex:1;min-width:0;}
+.rec-title{font-weight:700;font-size:14.5px;word-break:break-word;}
+.rec-meta{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--sage);
+  margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
+.badge-queued{
+  background:rgba(232,135,60,0.16);color:var(--amber);
+  border-radius:20px;padding:1px 8px;font-family:'Manrope';font-weight:700;font-size:10.5px;
+}
+.chip-btn{
+  flex:1;background:var(--surface);border:1px solid var(--line);color:var(--ink-dim);
+  font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;padding:8px 6px;
+  border-radius:9px;cursor:pointer;
+}
+.chip-btn.active{background:var(--surface-2);color:var(--ink);border-color:var(--sage-dim);}
+.badge-proposta{
+  background:rgba(154,166,159,0.16);color:var(--ink-dim);
+  border-radius:20px;padding:1px 8px;font-weight:700;font-size:10.5px;
+}
+.badge-confermata{
+  background:rgba(130,166,126,0.18);color:var(--sage);
+  border-radius:20px;padding:1px 8px;font-weight:700;font-size:10.5px;
+}
+.rec-note{color:var(--ink-dim);font-size:12.5px;margin-top:4px;}
+.rec-plan{
+  color:var(--amber);font-size:12.5px;margin-top:5px;
+  background:rgba(232,135,60,0.10);border:1px solid rgba(232,135,60,0.25);
+  border-radius:8px;padding:5px 9px;display:flex;gap:6px;align-items:flex-start;
+}
+.rec-plan span.pin{flex-shrink:0;}
+.item-actions{display:flex;gap:6px;flex-shrink:0;}
+.icon-btn{
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink-dim);
+  width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;flex-shrink:0;
+}
+.icon-btn:hover{color:var(--ink);}
+.icon-btn.danger:hover{color:var(--red);border-color:rgba(217,105,90,.5);}
+
+/* queue specific */
+.q-item{cursor:default;}
+.q-item.dragging{opacity:.4;}
+.q-item.drag-over{border-color:var(--amber);}
+.q-handle{
+  cursor:grab;color:var(--ink-dim);font-size:16px;padding:2px 4px;
+  touch-action:none;user-select:none;flex-shrink:0;align-self:center;
+}
+.q-order{
+  font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:12px;
+  width:20px;flex-shrink:0;align-self:center;text-align:center;
+}
+.q-updown{display:flex;flex-direction:column;gap:2px;}
+.q-updown button{
+  background:none;border:none;color:var(--ink-dim);cursor:pointer;font-size:11px;line-height:1;padding:3px;
+}
+.q-updown button:hover{color:var(--sage);}
+
+.empty{
+  text-align:center;padding:34px 16px;color:var(--ink-dim);
+}
+.empty .glyph{font-size:26px;display:block;margin-bottom:8px;opacity:.7;}
+.empty p{margin:0;font-size:13px;}
+
+/* sync bar */
+.syncbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  background:var(--surface);border-top:1px solid var(--line);
+  padding:9px 14px calc(9px + env(safe-area-inset-bottom));
+}
+.syncbar-inner{
+  max-width:640px;margin:0 auto;
+  display:flex;align-items:center;gap:10px;
+}
+.sync-status{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+  background:var(--ink-dim);
+}
+.sync-status.ok{background:#5fbf6f;box-shadow:0 0 6px #5fbf6f88;}
+.sync-status.err{background:var(--red);box-shadow:0 0 6px #d9695a88;}
+.sync-status.busy{background:#e0c34a;box-shadow:0 0 6px #e0c34a88;}
+.sync-label{font-size:11.5px;color:var(--ink-dim);flex:1;font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sync-actions{display:flex;gap:6px;}
+.sync-actions button{
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+  width:36px;height:36px;border-radius:10px;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.sync-actions button:hover{border-color:var(--sage-dim);}
+.sync-actions button:active{transform:scale(.95);}
+
+/* modal */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(9,12,10,0.72);z-index:50;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-backdrop.open{display:flex;}
+.modal{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:18px 18px 0 0;
+  max-width:640px;width:100%;
+  padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  max-height:88vh;overflow-y:auto;
+}
+@media (min-width:680px){
+  .modal-backdrop{align-items:center;}
+  .modal{border-radius:18px;max-width:480px;}
+}
+.modal h2{font-family:'Fraunces',serif;font-size:20px;margin:0 0 4px;font-weight:600;}
+.modal .modal-sub{color:var(--ink-dim);font-size:13px;margin:0 0 16px;}
+.modal .field{margin-bottom:14px;}
+.modal .field label{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--sage);display:block;margin-bottom:6px;
+}
+.modal-close{
+  position:absolute;top:14px;right:14px;background:none;border:none;color:var(--ink-dim);
+  font-size:20px;cursor:pointer;
+}
+.modal-row{position:relative;}
+.gist-info{
+  background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-size:12.5px;color:var(--ink-dim);margin-top:14px;
+  font-family:'JetBrains Mono',monospace;line-height:1.6;word-break:break-all;
+}
+.gist-info b{color:var(--sage);}
+.toast{
+  position:fixed;bottom:78px;left:50%;transform:translateX(-50%);
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+  padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;
+  opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;
+}
+.toast.show{opacity:1;transform:translate(-50%,-6px);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <svg class="contours" viewBox="0 0 400 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,70 Q40,40 80,60 T160,55 T240,68 T320,50 T400,62" fill="none" stroke="#82a67e" stroke-width="1"/>
+      <path d="M0,80 Q50,55 100,72 T200,68 T300,78 T400,70" fill="none" stroke="#e8873c" stroke-width="1"/>
+      <path d="M0,58 Q60,25 120,45 T240,40 T400,48" fill="none" stroke="#82a67e" stroke-width="0.7"/>
+    </svg>
+    <div class="header-inner">
+      <p class="eyebrow">Niky &amp; Rodo · Sabato · Duo Acustico</p>
+      <h1>Linked Landscapes</h1>
+      <p class="sub">Logbook registrazioni &amp; ordine di uscita TikTok</p>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="rec">🎙️ Registrazioni <span class="tab-count" id="countRec">0</span></button>
+    <button class="tab-btn" data-tab="queue">📋 Ordine uscite <span class="tab-count" id="countQueue">0</span></button>
+    <button class="tab-btn" data-tab="ideas">💡 Idee <span class="tab-count" id="countIdeas">0</span></button>
+  </nav>
+
+  <main>
+    <!-- RECORDINGS PANEL -->
+    <section class="panel active" id="panel-rec">
+
+      <div class="snapshot">
+        <div class="snap-card">
+          <div class="snap-num" id="snapTotal">0</div>
+          <div class="snap-label">brani registrati</div>
+        </div>
+        <div class="snap-card">
+          <div class="snap-num" id="snapAvail">0</div>
+          <div class="snap-label">non ancora in coda</div>
+        </div>
+        <div class="snap-card">
+          <div class="snap-num" id="snapLastDate">—</div>
+          <div class="snap-label">ultima sessione</div>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchRec" placeholder="Cerca un brano registrato…">
+      </div>
+
+      <div class="form-card">
+        <span class="label">Nuova registrazione</span>
+        <div class="form-row">
+          <div class="form-col">
+            <input type="text" id="newRecTitle" placeholder="Titolo brano / cover">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <input type="date" id="newRecDate">
+          </div>
+          <div class="form-col">
+            <input type="text" id="newRecNote" placeholder="Nota (opz.)">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="addRecBtn">+ Aggiungi registrazione</button>
+      </div>
+
+      <div id="recList"></div>
+    </section>
+
+    <!-- QUEUE PANEL -->
+    <section class="panel" id="panel-queue">
+
+      <div class="snapshot">
+        <div class="snap-card">
+          <div class="snap-num" id="snapQueueTotal">0</div>
+          <div class="snap-label">in coda</div>
+        </div>
+        <div class="snap-card">
+          <div class="snap-num" id="snapQueueNext">—</div>
+          <div class="snap-label">prossima uscita</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <span class="label">Aggiungi alla coda</span>
+        <div class="form-row">
+          <div class="form-col">
+            <select id="queuePicker">
+              <option value="">— scegli da registrati o scrivi libero —</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <input type="text" id="newQueueTitle" placeholder="Titolo (o modifica quello scelto sopra)">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="addQueueBtn">+ Aggiungi in coda</button>
+      </div>
+
+      <p class="sub" style="margin:0 0 10px;">Tieni premuto <b style="color:var(--ink)">⠿</b> e trascina per riordinare, oppure usa le frecce.</p>
+      <div id="queueList"></div>
+    </section>
+
+    <!-- IDEAS PANEL -->
+    <section class="panel" id="panel-ideas">
+
+      <div class="snapshot">
+        <div class="snap-card">
+          <div class="snap-num" id="snapIdeasTotal">0</div>
+          <div class="snap-label">idee totali</div>
+        </div>
+        <div class="snap-card">
+          <div class="snap-num" id="snapIdeasConfirmed">0</div>
+          <div class="snap-label">confermate</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <span class="label">Nuova idea</span>
+        <div class="form-row">
+          <div class="form-col">
+            <input type="text" id="newIdeaTitle" placeholder="Titolo brano da proporre">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <select id="newIdeaStatus">
+              <option value="proposta">💬 Da proporre a Rodo</option>
+              <option value="confermata">✅ Confermata, faremo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <input type="text" id="newIdeaNote" placeholder="Nota (opz.)">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="addIdeaBtn">+ Aggiungi idea</button>
+      </div>
+
+      <div class="tabs" style="padding:0 0 12px;">
+        <button class="chip-btn active" data-ideafilter="all">Tutte</button>
+        <button class="chip-btn" data-ideafilter="proposta">Da proporre</button>
+        <button class="chip-btn" data-ideafilter="confermata">Confermate</button>
+      </div>
+
+      <div id="ideasList"></div>
+    </section>
+  </main>
+
+  <!-- SYNC BAR -->
+  <div class="syncbar">
+    <div class="syncbar-inner">
+      <div class="sync-status" id="syncDot"></div>
+      <div class="sync-label" id="syncLabel">Sync non configurata</div>
+      <div class="sync-actions">
+        <button id="btnPull" title="Scarica da GitHub">⬇</button>
+        <button id="btnPush" title="Carica su GitHub">⬆</button>
+        <button id="btnSetup" title="Impostazioni sync">⚙</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP MODAL -->
+<div class="modal-backdrop" id="setupModal">
+  <div class="modal" style="position:relative;">
+    <button class="modal-close" id="closeSetup">✕</button>
+    <h2>Sincronizzazione GitHub</h2>
+    <p class="modal-sub">I dati vengono salvati in un Gist privato del tuo account.</p>
+    <div class="field modal-row">
+      <label>Personal Access Token (scope: gist)</label>
+      <input type="text" id="patInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    </div>
+    <button class="btn btn-primary btn-block" id="saveSetupBtn">Salva e collega</button>
+    <div class="gist-info">
+      <div>File: <b>linked_landscapes_db.json</b></div>
+      <div>Gist ID: <b id="gistIdShown">non ancora collegato</b></div>
+    </div>
+    <button class="btn btn-ghost btn-block" id="forgetBtn" style="margin-top:12px;">Rimuovi token salvato</button>
+  </div>
+</div>
+
+<!-- RELEASE PLAN MODAL -->
+<div class="modal-backdrop" id="planModal">
+  <div class="modal" style="position:relative;">
+    <button class="modal-close" id="closePlan">✕</button>
+    <h2>Nota di uscita</h2>
+    <p class="modal-sub" id="planSongTitle">—</p>
+    <div class="field modal-row">
+      <label>Testo libero (es. "esce il 31 luglio")</label>
+      <textarea id="planTextarea" rows="3" placeholder="Scrivi qui una nota su quando/come far uscire questo brano…"></textarea>
+    </div>
+    <button class="btn btn-primary btn-block" id="savePlanBtn">Salva nota</button>
+    <button class="btn btn-ghost btn-block" id="clearPlanBtn" style="margin-top:10px;">Rimuovi nota</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- state ---------- */
+const LS = {
+  rec: 'll_recordings',
+  queue: 'll_queue',
+  ideas: 'll_ideas',
+  pat: 'll_gh_pat',
+  gist: 'll_gh_gistid'
+};
+let recordings = JSON.parse(localStorage.getItem(LS.rec) || '[]');
+let queue = JSON.parse(localStorage.getItem(LS.queue) || '[]');
+let ideas = JSON.parse(localStorage.getItem(LS.ideas) || '[]');
+let ideaFilter = 'all';
+const GIST_FILENAME = 'linked_landscapes_db.json';
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
+}
+function saveLocal(){
+  localStorage.setItem(LS.rec, JSON.stringify(recordings));
+  localStorage.setItem(LS.queue, JSON.stringify(queue));
+  localStorage.setItem(LS.ideas, JSON.stringify(ideas));
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------- recordings ---------- */
+document.getElementById('newRecDate').value = todayISO();
+
+function highlight(text, q){
+  if(!q) return text;
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if(idx===-1) return text;
+  return text.slice(0,idx) + '<mark>' + text.slice(idx, idx+q.length) + '</mark>' + text.slice(idx+q.length);
+}
+
+function isQueued(recTitle){
+  return queue.some(q => q.title.trim().toLowerCase() === recTitle.trim().toLowerCase());
+}
+
+function renderRecordings(){
+  const search = document.getElementById('searchRec').value.trim();
+  const list = document.getElementById('recList');
+  list.innerHTML = '';
+
+  let filtered = recordings.filter(r => !search || r.title.toLowerCase().includes(search.toLowerCase()));
+  filtered = filtered.slice().sort((a,b)=> b.date.localeCompare(a.date));
+
+  document.getElementById('countRec').textContent = recordings.length;
+  document.getElementById('snapTotal').textContent = recordings.length;
+  document.getElementById('snapAvail').textContent = recordings.filter(r=>!isQueued(r.title)).length;
+  const lastDate = recordings.map(r=>r.date).sort().slice(-1)[0];
+  document.getElementById('snapLastDate').textContent = lastDate ? fmtDate(lastDate).replace(/ \d{4}$/,'') : '—';
+
+  if(filtered.length === 0){
+    list.innerHTML = `<div class="empty"><span class="glyph">🎸</span><p>${search ? 'Nessun brano trovato.' : 'Nessuna registrazione ancora. Aggiungine una qui sopra.'}</p></div>`;
+    updateQueuePicker();
+    return;
+  }
+
+  // group by date
+  const groups = {};
+  filtered.forEach(r=>{ (groups[r.date] = groups[r.date]||[]).push(r); });
+  const dateKeys = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+
+  dateKeys.forEach(date=>{
+    const gDiv = document.createElement('div');
+    gDiv.className = 'date-group';
+    gDiv.innerHTML = `<h3>${fmtDate(date)}</h3>`;
+    groups[date].forEach(r=>{
+      const item = document.createElement('div');
+      item.className = 'rec-item';
+      item.innerHTML = `
+        <div class="body">
+          <div class="rec-title">${highlight(r.title, search)}</div>
+          <div class="rec-meta">
+            <span>📅 ${fmtDate(r.date)}</span>
+            ${isQueued(r.title) ? '<span class="badge-queued">in coda</span>' : ''}
+          </div>
+          ${r.note ? `<div class="rec-note">${highlight(r.note, search)}</div>` : ''}
+          ${r.releasePlan ? `<div class="rec-plan"><span class="pin">📌</span><span>${highlight(r.releasePlan, search)}</span></div>` : ''}
+        </div>
+        <div class="item-actions">
+          <button class="icon-btn" data-act="plan" title="Nota di uscita">📌</button>
+          <button class="icon-btn" data-act="edit" title="Modifica">✎</button>
+          <button class="icon-btn danger" data-act="del" title="Elimina">🗑</button>
+        </div>`;
+      item.querySelector('[data-act="plan"]').addEventListener('click', ()=>openPlanModal(r.id));
+      item.querySelector('[data-act="edit"]').addEventListener('click', ()=>editRecording(r.id));
+      item.querySelector('[data-act="del"]').addEventListener('click', ()=>deleteRecording(r.id));
+      gDiv.appendChild(item);
+    });
+    list.appendChild(gDiv);
+  });
+
+  updateQueuePicker();
+}
+
+document.getElementById('addRecBtn').addEventListener('click', ()=>{
+  const title = document.getElementById('newRecTitle').value.trim();
+  const date = document.getElementById('newRecDate').value || todayISO();
+  const note = document.getElementById('newRecNote').value.trim();
+  if(!title){ toast('Inserisci il titolo del brano'); return; }
+  recordings.push({id: uid(), title, date, note});
+  document.getElementById('newRecTitle').value = '';
+  document.getElementById('newRecNote').value = '';
+  saveLocal(); renderRecordings();
+  toast('Registrazione aggiunta');
+});
+
+document.getElementById('searchRec').addEventListener('input', renderRecordings);
+
+function editRecording(id){
+  const r = recordings.find(x=>x.id===id);
+  if(!r) return;
+  const newTitle = prompt('Titolo brano:', r.title);
+  if(newTitle === null) return;
+  const newDate = prompt('Data (AAAA-MM-GG):', r.date);
+  if(newDate === null) return;
+  const newNote = prompt('Nota (lascia vuoto per nessuna):', r.note || '');
+  r.title = newTitle.trim() || r.title;
+  r.date = /^\d{4}-\d{2}-\d{2}$/.test(newDate.trim()) ? newDate.trim() : r.date;
+  r.note = (newNote||'').trim();
+  saveLocal(); renderRecordings(); renderQueue();
+}
+function deleteRecording(id){
+  if(!confirm('Eliminare questa registrazione?')) return;
+  recordings = recordings.filter(x=>x.id!==id);
+  saveLocal(); renderRecordings();
+}
+
+/* ---------- release plan modal ---------- */
+const planModal = document.getElementById('planModal');
+let planEditingId = null;
+
+function openPlanModal(id){
+  const r = recordings.find(x=>x.id===id);
+  if(!r) return;
+  planEditingId = id;
+  document.getElementById('planSongTitle').textContent = r.title;
+  document.getElementById('planTextarea').value = r.releasePlan || '';
+  planModal.classList.add('open');
+  setTimeout(()=>document.getElementById('planTextarea').focus(), 50);
+}
+function closePlanModal(){
+  planModal.classList.remove('open');
+  planEditingId = null;
+}
+document.getElementById('closePlan').addEventListener('click', closePlanModal);
+planModal.addEventListener('click', (e)=>{ if(e.target===planModal) closePlanModal(); });
+
+document.getElementById('savePlanBtn').addEventListener('click', ()=>{
+  const r = recordings.find(x=>x.id===planEditingId);
+  if(!r) return;
+  r.releasePlan = document.getElementById('planTextarea').value.trim();
+  saveLocal(); renderRecordings(); closePlanModal();
+  toast('Nota di uscita salvata');
+});
+document.getElementById('clearPlanBtn').addEventListener('click', ()=>{
+  const r = recordings.find(x=>x.id===planEditingId);
+  if(!r) return;
+  r.releasePlan = '';
+  saveLocal(); renderRecordings(); closePlanModal();
+  toast('Nota rimossa');
+});
+
+/* ---------- ideas / proposals ---------- */
+function renderIdeas(){
+  const list = document.getElementById('ideasList');
+  list.innerHTML = '';
+
+  document.getElementById('countIdeas').textContent = ideas.length;
+  document.getElementById('snapIdeasTotal').textContent = ideas.length;
+  document.getElementById('snapIdeasConfirmed').textContent = ideas.filter(i=>i.status==='confermata').length;
+
+  const filtered = ideaFilter === 'all' ? ideas : ideas.filter(i=>i.status===ideaFilter);
+
+  if(filtered.length === 0){
+    list.innerHTML = `<div class="empty"><span class="glyph">💡</span><p>${ideas.length===0 ? 'Nessuna idea ancora. Segna qui i brani da proporre a Rodo o già decisi.' : 'Nessuna voce in questo filtro.'}</p></div>`;
+    return;
+  }
+
+  filtered.forEach(idea=>{
+    const item = document.createElement('div');
+    item.className = 'rec-item';
+    item.innerHTML = `
+      <div class="body">
+        <div class="rec-title">${idea.title}</div>
+        <div class="rec-meta">
+          <span class="${idea.status==='confermata' ? 'badge-confermata' : 'badge-proposta'}">${idea.status==='confermata' ? '✅ Confermata' : '💬 Da proporre'}</span>
+        </div>
+        ${idea.note ? `<div class="rec-note">${idea.note}</div>` : ''}
+      </div>
+      <div class="item-actions">
+        <button class="icon-btn" data-act="toggle" title="Cambia stato">⇄</button>
+        <button class="icon-btn" data-act="rec" title="Segna come registrata">🎙️</button>
+        <button class="icon-btn" data-act="edit" title="Modifica">✎</button>
+        <button class="icon-btn danger" data-act="del" title="Elimina">🗑</button>
+      </div>`;
+    item.querySelector('[data-act="toggle"]').addEventListener('click', ()=>toggleIdeaStatus(idea.id));
+    item.querySelector('[data-act="rec"]').addEventListener('click', ()=>convertIdeaToRecording(idea.id));
+    item.querySelector('[data-act="edit"]').addEventListener('click', ()=>editIdea(idea.id));
+    item.querySelector('[data-act="del"]').addEventListener('click', ()=>deleteIdea(idea.id));
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('addIdeaBtn').addEventListener('click', ()=>{
+  const title = document.getElementById('newIdeaTitle').value.trim();
+  const status = document.getElementById('newIdeaStatus').value;
+  const note = document.getElementById('newIdeaNote').value.trim();
+  if(!title){ toast('Inserisci il titolo del brano'); return; }
+  ideas.push({id: uid(), title, status, note});
+  document.getElementById('newIdeaTitle').value = '';
+  document.getElementById('newIdeaNote').value = '';
+  saveLocal(); renderIdeas();
+  toast('Idea aggiunta');
+});
+
+document.querySelectorAll('[data-ideafilter]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-ideafilter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ideaFilter = btn.dataset.ideafilter;
+    renderIdeas();
+  });
+});
+
+function toggleIdeaStatus(id){
+  const idea = ideas.find(x=>x.id===id);
+  if(!idea) return;
+  idea.status = idea.status === 'confermata' ? 'proposta' : 'confermata';
+  saveLocal(); renderIdeas();
+}
+function editIdea(id){
+  const idea = ideas.find(x=>x.id===id);
+  if(!idea) return;
+  const newTitle = prompt('Titolo brano:', idea.title);
+  if(newTitle === null) return;
+  const newNote = prompt('Nota (lascia vuoto per nessuna):', idea.note || '');
+  idea.title = newTitle.trim() || idea.title;
+  idea.note = (newNote||'').trim();
+  saveLocal(); renderIdeas();
+}
+function deleteIdea(id){
+  if(!confirm('Eliminare questa idea?')) return;
+  ideas = ideas.filter(x=>x.id!==id);
+  saveLocal(); renderIdeas();
+}
+function convertIdeaToRecording(id){
+  const idea = ideas.find(x=>x.id===id);
+  if(!idea) return;
+  const dateInput = prompt('In che data l\'avete registrata? (AAAA-MM-GG)', todayISO());
+  if(dateInput === null) return;
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(dateInput.trim()) ? dateInput.trim() : todayISO();
+  recordings.push({id: uid(), title: idea.title, date, note: idea.note || ''});
+  ideas = ideas.filter(x=>x.id!==id);
+  saveLocal(); renderIdeas(); renderRecordings();
+  toast('Spostata tra le registrazioni 🎙️');
+}
+
+/* ---------- queue ---------- */
+function updateQueuePicker(){
+  const sel = document.getElementById('queuePicker');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— scegli da registrati o scrivi libero —</option>';
+  recordings
+    .filter(r=>!isQueued(r.title))
+    .sort((a,b)=>b.date.localeCompare(a.date))
+    .forEach(r=>{
+      const opt = document.createElement('option');
+      opt.value = r.title;
+      opt.textContent = `${r.title} (${fmtDate(r.date)})`;
+      sel.appendChild(opt);
+    });
+  sel.value = current;
+}
+document.getElementById('queuePicker').addEventListener('change', (e)=>{
+  if(e.target.value) document.getElementById('newQueueTitle').value = e.target.value;
+});
+
+function renderQueue(){
+  const list = document.getElementById('queueList');
+  list.innerHTML = '';
+  document.getElementById('countQueue').textContent = queue.length;
+  document.getElementById('snapQueueTotal').textContent = queue.length;
+  document.getElementById('snapQueueNext').textContent = queue[0] ? queue[0].title : '—';
+
+  if(queue.length === 0){
+    list.innerHTML = `<div class="empty"><span class="glyph">📋</span><p>Coda vuota. Aggiungi il prossimo brano da pubblicare.</p></div>`;
+    return;
+  }
+
+  queue.forEach((q, i)=>{
+    const item = document.createElement('div');
+    item.className = 'q-item';
+    item.draggable = false;
+    item.dataset.id = q.id;
+    item.innerHTML = `
+      <span class="q-order">${i+1}</span>
+      <span class="q-handle">⠿</span>
+      <div class="body">
+        <div class="rec-title">${q.title}</div>
+      </div>
+      <div class="q-updown">
+        <button data-act="up" title="Su">▲</button>
+        <button data-act="down" title="Giù">▼</button>
+      </div>
+      <div class="item-actions">
+        <button class="icon-btn danger" data-act="del" title="Rimuovi">🗑</button>
+      </div>`;
+    item.querySelector('[data-act="up"]').addEventListener('click', ()=>moveQueue(i,-1));
+    item.querySelector('[data-act="down"]').addEventListener('click', ()=>moveQueue(i,1));
+    item.querySelector('[data-act="del"]').addEventListener('click', ()=>deleteQueue(q.id));
+    attachDrag(item);
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('addQueueBtn').addEventListener('click', ()=>{
+  const title = document.getElementById('newQueueTitle').value.trim();
+  if(!title){ toast('Inserisci o scegli un titolo'); return; }
+  queue.push({id: uid(), title});
+  document.getElementById('newQueueTitle').value = '';
+  document.getElementById('queuePicker').value = '';
+  saveLocal(); renderQueue(); renderRecordings();
+  toast('Aggiunto in coda');
+});
+
+function moveQueue(index, dir){
+  const j = index+dir;
+  if(j<0 || j>=queue.length) return;
+  [queue[index], queue[j]] = [queue[j], queue[index]];
+  saveLocal(); renderQueue();
+}
+function deleteQueue(id){
+  queue = queue.filter(x=>x.id!==id);
+  saveLocal(); renderQueue(); renderRecordings();
+}
+
+/* ---------- drag to reorder (pointer events, mouse+touch) ---------- */
+let dragEl = null;
+function attachDrag(item){
+  const handle = item.querySelector('.q-handle');
+  let startY = 0, dragging = false;
+
+  handle.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    dragging = true;
+    dragEl = item;
+    item.classList.add('dragging');
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  handle.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    const list = document.getElementById('queueList');
+    const items = [...list.querySelectorAll('.q-item')];
+    const y = e.clientY;
+    for(const other of items){
+      if(other === dragEl) continue;
+      const rect = other.getBoundingClientRect();
+      const mid = rect.top + rect.height/2;
+      if(y < mid && other.previousElementSibling !== dragEl){
+        list.insertBefore(dragEl, other);
+        break;
+      } else if(y >= mid && other.nextElementSibling !== dragEl){
+        list.insertBefore(dragEl, other.nextElementSibling);
+        break;
+      }
+    }
+  });
+
+  function endDrag(e){
+    if(!dragging) return;
+    dragging = false;
+    item.classList.remove('dragging');
+    const list = document.getElementById('queueList');
+    const newOrderIds = [...list.querySelectorAll('.q-item')].map(el=>el.dataset.id);
+    queue = newOrderIds.map(id => queue.find(q=>q.id===id));
+    saveLocal();
+    renderQueue();
+  }
+  handle.addEventListener('pointerup', endDrag);
+  handle.addEventListener('pointercancel', endDrag);
+}
+
+/* ---------- GitHub Gist sync ---------- */
+const dot = document.getElementById('syncDot');
+const label = document.getElementById('syncLabel');
+
+function setStatus(state, text){
+  dot.className = 'sync-status ' + (state||'');
+  label.textContent = text;
+}
+function getPat(){ return localStorage.getItem(LS.pat) || ''; }
+function getGistId(){ return localStorage.getItem(LS.gist) || ''; }
+
+function refreshStatusIdle(){
+  const pat = getPat(), gid = getGistId();
+  if(!pat){ setStatus('', 'Sync non configurata'); }
+  else if(!gid){ setStatus('err', 'Token salvato, gist non collegato'); }
+  else { setStatus('ok', 'Collegato · ' + gid.slice(0,7)); }
+}
+
+async function ghFetch(url, opts={}){
+  const pat = getPat();
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'Authorization': 'token ' + pat,
+      'Accept': 'application/vnd.github+json',
+      ...(opts.headers||{})
+    }
+  });
+  if(!res.ok){
+    const body = await res.text().catch(()=> '');
+    throw new Error('GitHub API ' + res.status + ': ' + body.slice(0,200));
+  }
+  return res.json();
+}
+
+async function findOrCreateGist(){
+  setStatus('busy', 'Ricerca gist esistente…');
+  const gists = await ghFetch('https://api.github.com/gists?per_page=100');
+  const found = gists.find(g => g.files && g.files[GIST_FILENAME]);
+  if(found){
+    localStorage.setItem(LS.gist, found.id);
+    setStatus('ok', 'Gist trovato · ' + found.id.slice(0,7));
+    return found.id;
+  }
+  setStatus('busy', 'Creo nuovo gist privato…');
+  const created = await ghFetch('https://api.github.com/gists', {
+    method: 'POST',
+    body: JSON.stringify({
+      description: 'Linked Landscapes — dati app (privato)',
+      public: false,
+      files: { [GIST_FILENAME]: { content: JSON.stringify({recordings, queue, ideas}, null, 2) } }
+    })
+  });
+  localStorage.setItem(LS.gist, created.id);
+  setStatus('ok', 'Gist creato · ' + created.id.slice(0,7));
+  return created.id;
+}
+
+async function doPush(){
+  if(!getPat()){ toast('Configura prima il token (⚙)'); return; }
+  try{
+    setStatus('busy', 'Caricamento in corso…');
+    let gid = getGistId();
+    if(!gid) gid = await findOrCreateGist();
+    await ghFetch('https://api.github.com/gists/' + gid, {
+      method: 'PATCH',
+      body: JSON.stringify({ files: { [GIST_FILENAME]: { content: JSON.stringify({recordings, queue, ideas}, null, 2) } } })
+    });
+    setStatus('ok', 'Caricato · ' + gid.slice(0,7));
+    toast('Dati caricati su GitHub');
+  }catch(err){
+    setStatus('err', 'Errore push');
+    toast('Errore: ' + err.message);
+  }
+}
+
+async function doPull(){
+  if(!getPat()){ toast('Configura prima il token (⚙)'); return; }
+  try{
+    setStatus('busy', 'Scaricamento in corso…');
+    let gid = getGistId();
+    if(!gid) gid = await findOrCreateGist();
+    const g = await ghFetch('https://api.github.com/gists/' + gid);
+    const file = g.files[GIST_FILENAME];
+    if(!file){ throw new Error('file non trovato nel gist'); }
+    const content = JSON.parse(file.content);
+    recordings = content.recordings || [];
+    queue = content.queue || [];
+    ideas = content.ideas || [];
+    saveLocal(); renderRecordings(); renderQueue(); renderIdeas();
+    setStatus('ok', 'Aggiornato · ' + gid.slice(0,7));
+    toast('Dati scaricati da GitHub');
+  }catch(err){
+    setStatus('err', 'Errore pull');
+    toast('Errore: ' + err.message);
+  }
+}
+
+document.getElementById('btnPush').addEventListener('click', doPush);
+document.getElementById('btnPull').addEventListener('click', doPull);
+
+/* ---------- setup modal ---------- */
+const setupModal = document.getElementById('setupModal');
+function openSetup(){
+  document.getElementById('patInput').value = getPat();
+  document.getElementById('gistIdShown').textContent = getGistId() || 'non ancora collegato';
+  setupModal.classList.add('open');
+}
+document.getElementById('btnSetup').addEventListener('click', openSetup);
+document.getElementById('closeSetup').addEventListener('click', ()=>setupModal.classList.remove('open'));
+setupModal.addEventListener('click', (e)=>{ if(e.target===setupModal) setupModal.classList.remove('open'); });
+
+document.getElementById('saveSetupBtn').addEventListener('click', async ()=>{
+  const pat = document.getElementById('patInput').value.trim();
+  if(!pat){ toast('Incolla il token'); return; }
+  localStorage.setItem(LS.pat, pat);
+  setupModal.classList.remove('open');
+  try{
+    const gid = await findOrCreateGist();
+    document.getElementById('gistIdShown').textContent = gid;
+    toast('Collegato al gist su GitHub');
+  }catch(err){
+    setStatus('err', 'Token non valido');
+    toast('Errore: ' + err.message);
+  }
+});
+
+document.getElementById('forgetBtn').addEventListener('click', ()=>{
+  if(!confirm('Rimuovere il token salvato da questo dispositivo?')) return;
+  localStorage.removeItem(LS.pat);
+  localStorage.removeItem(LS.gist);
+  refreshStatusIdle();
+  setupModal.classList.remove('open');
+  toast('Token rimosso');
+});
+
+/* ---------- service worker (offline) ---------- */
+if('serviceWorker' in navigator){
+  const swCode = `
+    const CACHE = 'll-cache-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./','./index.html','./manifest.json'])));
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+/* ---------- init ---------- */
+renderRecordings();
+renderQueue();
+renderIdeas();
+refreshStatusIdle();
+</script>
+</body>
+</html>
